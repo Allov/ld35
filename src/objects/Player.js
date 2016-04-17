@@ -36,6 +36,7 @@ class Player extends Phaser.Sprite {
         this.body.allowRotation = true;
         this.body.bounce.y = 0.2;
         this.body.collideWorldBounds = true;
+        this.body.gravity.y = 800;
         this.body.setSize(10, 10, 5, 5);
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -56,9 +57,9 @@ class Player extends Phaser.Sprite {
 
     update() {
         if (this.body.onFloor()) {
-            this.body.drag.x = 450;
+            this.body.drag.x = 1000;
         } else {
-            this.body.drag.x = 200;
+            this.body.drag.x = 450;
         }
 
         if (this.body.angularVelocity == 0) {
@@ -86,7 +87,7 @@ class Player extends Phaser.Sprite {
             && (this.body.onFloor() || this.body.onWall() || this._jumpCount < 2) 
             && this._jumpCount < 2
             && this.game.time.now > this._jumpCooldown) {
-            this.body.velocity.y = -200;
+            this.body.velocity.y = -600;
             this._jumpCount += 1;
             this._jumpCooldown = this.game.time.now + 500;
         }

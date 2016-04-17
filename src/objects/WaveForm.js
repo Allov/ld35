@@ -21,13 +21,14 @@ class WaveForm extends Phaser.Graphics {
         let waveformData = this._analyser.frequencies();
         let waves = this._waves;
         let sum = 0;
+        let groupCount = waveformData.length / this._length;
 
         for (let i = 0; i < waveformData.length; i++) {
 
             sum += waveformData[i];
 
-            if (i % this._length == 0) {
-                waves[i / this._length] = sum / this._length + 1;
+            if (i % groupCount == 0) {
+                waves[i / groupCount] = sum / groupCount + 1;
                 sum = 0;
             }
         }
