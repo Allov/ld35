@@ -34,6 +34,7 @@ class GameState extends Phaser.State {
         this.score = 0;
         this.streak = 0;
         this.ended = false;
+        this.playing = false;
 
         this.initAudio();
         this.initSfx();
@@ -43,8 +44,29 @@ class GameState extends Phaser.State {
         this.initFps();
         this.initPlayer();
         this.initShapeFactory();
+        this.initPauseText();
+        this.initGameTitle();
 
-        this.shapeFactory.spawnPlatform();
+        this.pause = this.game.input.keyboard.addKey(Phaser.Keyboard.ESC);
+        this.pause.onDown.add(() => {
+            if (this.playing) {
+                this.pauseGame();
+            }
+        });
+    }
+
+    initPauseText() {
+        let center = { x: this.game.world.centerX, y: this.game.world.centerY + 30 }
+        this.pauseText = this.game.add.text(center.x, center.y, '- paused -', { font: "45px Lucida Console", fill: "#fff", align: "center" });
+        this.pauseText.alpha = 0;
+        this.pauseText.anchor.x = 0.5;
+    }
+
+    initGameTitle() {
+        let center = { x: this.game.world.centerX, y: 80 }
+        this.gameTitle = this.game.add.text(center.x, center.y, 'shapeshift\nbeat\nld35', { font: "60px Lucida Console", fill: "#FFBA00", align: "center" });
+        this.gameTitle.alpha = 1;
+        this.gameTitle.anchor.x = 0.5;
     }
 
     initAudio() {
@@ -53,6 +75,7 @@ class GameState extends Phaser.State {
 
         this.audio.onended = () => {
             this.ended = true;
+            this.playing = false;
 
             this.shapeFactory.shapes.setAll('lifespan', 1);
 
@@ -72,7 +95,7 @@ class GameState extends Phaser.State {
             ]);
 
             this.playButton.inputEnabled = true;
-            this.playButton.alpha = 1;
+            this.playButton.alpha = this.gameTitle.alpha = 1;
             this.playButton.text = 'play again';
         }
 
@@ -106,11 +129,12 @@ class GameState extends Phaser.State {
         this.playButton.inputEnabled = true;
         this.playButton.events.onInputDown.add(() => {
             this.playButton.inputEnabled = false;
-            this.playButton.alpha = 0;
+            this.playButton.alpha = this.gameTitle.alpha = 0;
 
             this.score = 0;
             this.streak = 0;
             this.ended = false;
+            this.playing = true;
 
             if (!this.doneTutorial) {
                 this.startTutorial();
@@ -150,12 +174,24 @@ class GameState extends Phaser.State {
         this.alertText.anchor.x = 0.5;
     }
 
+    pauseGame() {
+        this.game.paused = !this.game.paused;
+        this.pauseText.alpha = this.gameTitle.alpha = this.game.paused ? 1 : 0;
+
+        if (!this.audio.paused) {
+            this.audio.pause();
+        } else {
+            this.audio.play();
+        }
+    }
+
     startTutorial() {
         this.showListOfTexts([
             '- welcome -',
             'left/right to move',
             'up to jump',
             'c to shapeshift',
+            'try and grab shapes of your type',
             'ready?',
             'go!'
         ]);
