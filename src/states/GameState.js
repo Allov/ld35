@@ -80,9 +80,9 @@ class GameState extends Phaser.State {
             this.shapeFactory.shapes.setAll('lifespan', 1);
 
             let scoreText = 'phew... that was rough. ' + this.score + ' pts';
-            if (this.score >= 10 && this.score < 20) {
+            if (this.score >= 30 && this.score < 50) {
                 scoreText = this.score + ' pts! let\'s work these up again.';
-            } else if (this.score > 20 && this.score <= 30) {
+            } else if (this.score >= 50 && this.score < 80) {
                 scoreText = 'not bad... not bad at all! ' + this.score + ' pts';
             } else {
                 scoreText = 'whaaaat? you basicaly crushed it... nice job! ' + this.score + ' pts';
@@ -92,7 +92,7 @@ class GameState extends Phaser.State {
                 'wow, it\'s finished!',
                 'let\'s see how you did...',
                 scoreText
-            ]);
+            ], true);
 
             this.playButton.inputEnabled = true;
             this.playButton.alpha = this.gameTitle.alpha = 1;
@@ -130,6 +130,7 @@ class GameState extends Phaser.State {
         this.playButton.events.onInputDown.add(() => {
             this.playButton.inputEnabled = false;
             this.playButton.alpha = this.gameTitle.alpha = 0;
+            this.alertText.text = '';
 
             this.score = 0;
             this.streak = 0;
@@ -141,7 +142,7 @@ class GameState extends Phaser.State {
             }
             this.playNext();
             this.startAudio();
-            this.game.time.events.loop(15000, () => {
+            this.game.time.events.loop(20000, () => {
                 if (!this.ended) {
                     this.showText('current score: ' + this.score + ' pts');
                 }
@@ -199,33 +200,36 @@ class GameState extends Phaser.State {
         this.doneTutorial = true;
     }
 
-    showText(text) {
+    showText(text, preventTweenOut) {
         this.alertText.alpha = 1;
         this.alertText.position.x = this.game.world.centerX;
         let tween = this.game.add.tween(this.alertText).from({ x: this.game.world.width + 100 }, 500, Phaser.Easing.Bounce.Out, true);
-        tween.onComplete.add(() => {
-            let tweenOut = this.game.add.tween(this.alertText).to({ x: -200 }, 200, Phaser.Easing.None, true, 500);
-            tweenOut.onComplete.add(() => {
-                this.alertText.text = '';
+
+        if (!preventTweenOut) {
+            tween.onComplete.add(() => {
+                let tweenOut = this.game.add.tween(this.alertText).to({ x: -200 }, 200, Phaser.Easing.None, true, 1000);
+                tweenOut.onComplete.add(() => {
+                    this.alertText.text = '';
+                }, this);
             }, this);
-        }, this);
+        }
         this.alertText.text = text;
     }
 
-    showListOfTexts(texts) {
+    showListOfTexts(texts, keepLastText) {
         let current = 0;
 
-        let showText = () => {
+        let showText = (keepLastText) => {
             //wat?
             if (current >= texts.length) return;
 
-            this.showText(texts[current]);
+            this.showText(texts[current], keepLastText ? current == texts.length - 1 : false);
 
             current++;
         };
 
         showText();
-        this.game.time.events.repeat(2000, texts.length, showText, this).timer.start();
+        this.game.time.events.repeat(2500, texts.length, showText, this, keepLastText).timer.start();
     }
 
     stopAudio() {
@@ -250,12 +254,8 @@ class GameState extends Phaser.State {
             this.score++;
             this.streak++;
 
-            if (this.streak == 3) {
-                this.showText('3 hits combo');
-                this.score += 3;
-                this.comboAudio.play();
-            } else if (this.streak == 6) {
-                this.showText('6 in a row!')
+            if (this.streak % 3 == 0) {
+                this.showText(this.streak + ' hits combo');
                 this.score += 3;
                 this.comboAudio.play();
             } else {
