@@ -1,7 +1,7 @@
 {
-  "name": "phaser-es6-boilerplate",
-  "version": "1.0.2",
-  "description": "Tiny flexible template for writing Phaser games in ES6/ES2015 with Babel.",
+  "name": "ld35",
+  "version": "1.0.0",
+  "description": "shapeshift beat - made for ludum dare 35.",
   "main": "src/index.js",
   "scripts": {
     "start": "gulp",
@@ -9,9 +9,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/belohlavek/phaser-es6-boilerplate"
+    "url": "https://github.com/allov/ld35"
   },
-  "author": "Daniel Belohlavek",
+  "author": "Frédérik Charest",
   "license": "MIT",
   "devDependencies": {
     "babelify": "^6.1.3",
